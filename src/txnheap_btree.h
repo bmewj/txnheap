@@ -14,10 +14,10 @@
 //
 //    A minimal btree struct has been added called btree_data
 //    that tracks the root, count, and height of the tree. This
-//    is what is expected to be stored in the SHEAP memory region.
+//    is what is expected to be stored in the TXNHEAP memory region.
 //
-//    The btree code first expects to be opened (by passing a SHEAP
-//    txn and a pointer to btree_data in the SHEAP memory region),
+//    The btree code first expects to be opened (by passing a TxnHeap
+//    txn and a pointer to btree_data in the TXNHEAP memory region),
 //    and any subsequent operations will be stored inside the memory
 //    region.
 //
@@ -26,13 +26,13 @@
 //    given in a fully atomic and isolated manner. Once you're done with
 //    all updates you can call btree_done(), which will return you the
 //    new btree_data of the final tree. Storing the as the root of the
-//    Sheap and then committing the transaction will make all the changes
+//    TxnHeap and then committing the transaction will make all the changes
 //    visible to other threads/processes.
 //
 //    Finally, children pointers have been replaced with offsets, and
 //    the items pointer has been removed, which means the entire
 //    tree structure is position invariant and works just the same
-//    no matter what the absolute location is of the SHEAP memory
+//    no matter what the absolute location is of the TxnHeap memory
 //    region.
 //
 //
@@ -51,7 +51,7 @@ extern "C" {
 struct btree;
 
 // btree_new creates a new btree context manager that you can
-// use to access/operate on a btree stored in a Sheap.
+// use to access/operate on a btree stored in a TxnHeap.
 struct btree* txnheap_btree_new(
     size_t elsize, size_t max_items,
     int (*compare)(const void* a, const void* b, void* udata),
@@ -70,11 +70,11 @@ void txnheap_btree_set_item_callbacks(struct btree *btree,
     bool (*clone)(const void *item, void *into, void *udata), 
     void (*free)(const void *item, void *udata));
 
-// btree_new will instantiate a new btree inside a Sheap, returning the
+// btree_new will instantiate a new btree inside a TxnHeap, returning the
 // root data which can be passed to a btree_ctx_open() to operate on the tree.
 void* txnheap_btree_create(TXP_txn* txn);
 
-// btree_ctx_open lets you open up a btree stored in a Sheap provided
+// btree_ctx_open lets you open up a btree stored in a TxnHeap provided
 // with a read or write transaction and a pointer to the data where
 // the btree lives.
 void txnheap_btree_open(struct btree* btree, TXP_txn* txn, void* data);
