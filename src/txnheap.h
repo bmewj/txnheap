@@ -31,21 +31,21 @@
 //   (This is achieved by deferring any frees on nodes who have open readers
 //   to take effect after these readers are closed.)
 //
-//   In short, a Sheap is ~almost~ ACID-complaint:
+//   In short, a TxnHeap is ~almost~ ACID-complaint:
 //     - atomicity:   Yes, when writing, if you commit, all your writes will
 //                    become visible to future readers, and if you abort,
 //                    none of your writes will be visible.
-//     - consistency: Depends on your data structure, Sheap does nothing to
+//     - consistency: Depends on your data structure, a TxnHeap does nothing to
 //                    stop you from putting the data structure into an invalid
 //                    state. But equally, it doesn't get in your way, either.
 //     - isolation:   Yes, reads do not affect writes, and writes do not
 //                    affect reads.
-//     - durability:  No, Sheap is not persistent. You could in theory memory
+//     - durability:  No, a TxnHeap is not persistent. You could in theory memory
 //                    map it to a file, but there's no recovery mechanism
 //                    for when your application crashes.
 //
 //   Advanced Mode: If you're willing to forego atomicity and isolation, you
-//   are completely free to mutate nodes in-place. Sheap doesn't do anything
+//   are completely free to mutate nodes in-place. TxnHeap doesn't do anything
 //   to stop you. So long as your mutations transition your data structure
 //   from one valid state to another, this should work fine.
 //
@@ -66,11 +66,12 @@ extern "C" {
 // Environment API
 //
 //  You start by allocating an environment and providing a fixed buffer
-//  that you want the Sheap to manage. Once you've done this you can call
-//  txnheap_env_init() to have Sheap populate the buffer with its general
+//  that you want the TxnHeap to live in. Once you've done this you can call
+//  txnheap_env_init() to initialize the buffer to be a TxnHead, which sets up
 //  book-keeping data structures (you only need to do this once, if you
-//  are opening up a Sheap that's already been created in another process
-//  you only need to call txnheap_env_alloc()).
+//  are opening up a TxnHeap that's already been created in another process
+//  you only need to call txnheap_env_alloc() and point it to the right
+//  buffer).
 //
 typedef struct TXP_env TXP_env;
 TXP_env* txnheap_env_alloc(uint8_t* buffer, size_t buffer_size);
